@@ -5,7 +5,7 @@ const uri = process.env.DB_URL;
 async function dbConnect() {
     mongoose.connect(uri
         ).then(() => {
-            console.log("Successfully connected to MongoDb");
+            console.log("Successfully connected to MongoDb now!");
         })
         .catch((error) => {
             console.log("MongoDB connection failed");
