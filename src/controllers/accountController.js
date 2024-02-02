@@ -19,10 +19,10 @@ const register = async (req, res, next) => {
     console.log('Reached registration route handler');
   try {
     
-    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-if (!emailRegex.test(email)) {
-  return res.status(400).json({error: "Invalid Email!"});
-}
+//     const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+// if (!emailRegex.test(email)) {
+//   return res.status(400).json({error: "Invalid Email!"});
+// }
       const oldUser = await busTripUsers.findOne({ email });
       if(oldUser){
         return res.status(400).json({error: "Email is already being used."});
