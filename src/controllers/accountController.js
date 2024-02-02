@@ -27,12 +27,16 @@ const register = async (req, res, next) => {
       if(oldUser){
         return res.status(400).json({error: "Email is already being used."});
       } 
-      
+      if (!password) {
+        return res.status(400).json({ error: "Password is required." });
+      }
       const encryptedPassword = await bcrypt.hash(password, 10);
       const otp = randomstring.generate({
         length: 4,
         charset: 'numeric'
       });
+      console.log('Password:', password);
+      console.log('Encrypted Password:', encryptedPassword);
       const expirationTime = Date.now() + 5 * 60 * 1000;
       const message = `Hello ${firstName},\n\nYour OTP for verification is: ${otp}`;
       const transporter = nodemailer.createTransport({
