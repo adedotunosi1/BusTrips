@@ -17,6 +17,8 @@ const client = new OAuth2Client(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET); // Incl
 const register = async (req, res, next) => {
     const {firstName, lastName, email, password} = req.body;
     console.log('Reached registration route handler');
+    console.log(password)
+    console.log(firstName)
   try {
     
 //     const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
