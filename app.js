@@ -13,7 +13,7 @@ const { makeUsers } = require("./src/middlewares/user.middleware");
 dbConnect();
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({extended: true}));
-const allowedOrigins = ["https://yum-run.vercel.app/", "http://localhost:5173", "http://localhost:4000"];
+const allowedOrigins = ["https://yum-run.vercel.app/", "http://localhost:5173", "http://localhost:4000", "http://localhost:3000"];
 
 app.use(cors({
   origin: function (origin, callback) {
