@@ -95,13 +95,13 @@ const login = async (req, res, next) => {
     if (user.otpVerified !== true) {
       return res.status(400).json({ error: "Please verify OTP first" });
     }
-    const fullName = user.fullName;
+    const firstName = user.firstName;
     if (!(await bcrypt.compare(password, user.password))) {
       return res.status(400).json({ status: "failed", error: "Incorrect Password" });
     }
 
-    const session = createSession(email, fullName);
-    const accessToken = signJWT({ email: user.email, _id: user._id, fullName, sessionId: session.sessionId  }, "7h");
+    const session = createSession(email, firstName);
+    const accessToken = signJWT({ email: user.email, _id: user._id, firstName, sessionId: session.sessionId  }, "7h");
     const refreshToken = signJWT({ sessionId: session.sessionId }, "1y");
 
     res.cookie('accessToken', accessToken, {
@@ -120,7 +120,7 @@ const login = async (req, res, next) => {
 
     const { payload: decodedUser, expired } = verifyJWT(accessToken);
 if (decodedUser) {
-  const userdata = {_id: decodedUser._id, email, fullName};
+  const userdata = {_id: decodedUser._id, email, firstName};
   console.log("users", userdata);
   return res.status(201).json({
     status: "ok",
