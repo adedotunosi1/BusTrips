@@ -64,7 +64,7 @@ const register = async (req, res, next) => {
         if (error) {
           console.log(error);
           if (error.responseCode === 553) {
-            return res.json({ message: 'Invalid Email Address!' });
+            return res.status(400).json({error: "Invalid Email!"});
           } else {
          return res.json({ error: error, message: 'Failed to send OTP' });
           }
@@ -225,24 +225,29 @@ const verify_otp = async (req, res, next) => {
   try {
     const { email, otp } = req.body;
     const user = await busTripUsers.findOne({ email });
+
     if (!user) {
-      return res.json({ status: "User does not exist!!" });
+      return res.status(401).json({ message: "User does not exist" });
     }
+
     if (user.otp !== otp) {
       return res.status(401).json({ message: "Invalid OTP" });
     }
+
     if (user.expirationTime < Date.now()) {
       return res.status(401).json({ message: "OTP has expired" });
     }
 
     user.otpVerified = true;
     await user.save();
-    res.status(200).json({ message: "OTP Verification Complete", myuserinfo: user });
+
+    return res.status(200).json({ message: "OTP Verification Complete", myuserinfo: user });
   } catch (error) {
-    console.log(error);
-    return res.status(400).json({ error: "Internal Server Error" });
+    console.error("Error verifying OTP:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
-}
+};
+
 
 const generate_otp = async (req, res, next) => {
   try {
