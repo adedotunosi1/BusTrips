@@ -17,14 +17,8 @@ const client = new OAuth2Client(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET); // Incl
 const register = async (req, res, next) => {
     const {firstName, lastName, email, password, is_admin } = req.body;
     console.log('Reached registration route handler');
-    console.log(password)
-    console.log(firstName)
   try {
     
-    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-   if (!emailRegex.test(email)) {
-  return res.status(400).json({error: "Invalid Email!"});
-}
       const oldUser = await busTripUsers.findOne({ email });
       if(oldUser){
         return res.status(400).json({error: "Email is already being used."});
@@ -208,9 +202,8 @@ const delete_account = async (req, res, next) => {
 
 const user_data_dashboard = async (req, res, next) => {
   try {
-    const { id } = req.body;
+    const  id  = req.user._id;
     const user = await busTripUsers.findOne({ _id: id });
-
     if (!user) {
       return res.status(404).json({ status: "User does not exist!!" });
     }
@@ -239,6 +232,10 @@ const verify_otp = async (req, res, next) => {
     }
 
     user.otpVerified = true;
+
+    await busTripUsers.updateOne({ _id: user._id }, { $unset: { expirationTime: 1 } });
+
+
     await user.save();
 
     return res.status(200).json({ message: "OTP Verification Complete", myuserinfo: user });
@@ -270,7 +267,7 @@ const generate_otp = async (req, res, next) => {
     const mailOptions = {
       from: process.env.APP_EMAIL,
       to: email,
-      subject: 'Bank App Wallet New OTP Code',
+      subject: 'BusTrips New OTP Code',
       text: message,
     };
     
@@ -317,7 +314,7 @@ const forgot_pass = async (req, res) => {
       const mailOptions = {
         from: process.env.APP_EMAIL,
         to: Useremail,
-        subject: 'Bank App Wallet Password Reset',
+        subject: 'BusTrips Password Reset',
         text: message,
       };
       
