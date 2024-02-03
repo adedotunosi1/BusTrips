@@ -389,7 +389,6 @@ module.exports = {
     generate_otp,
     forgot_pass,
     pass_reset,
-    user_dashboard,
     userImage,
     user_data_dashboard,
     logout,
