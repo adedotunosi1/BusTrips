@@ -73,7 +73,7 @@ const register = async (req, res, next) => {
         const details =  {firstName, lastName, email, password: encryptedPassword, otp, expirationTime, otpVerified: false, userImage: '', };
         const createUser = await createNewUser(details);
 
-          return res.json({ status: "ok", message: 'Registration Successful. Check email for OTP' });
+          return res.json({ status: "ok", message: 'Registration Successful. Check email for OTP', userEmail: email });
         }
       });
     } catch (error) {
@@ -191,8 +191,6 @@ const delete_account = async (req, res, next) => {
       httpOnly: true,
     });
 
-     const deleteWallets = await UserWallet.deleteMany({ userId });
-
      const deleteNotifications = await walletNotification.deleteMany({ userId });
  
      const deleteTransactions = await userTransaction.deleteMany({ userId });
@@ -207,8 +205,6 @@ const delete_account = async (req, res, next) => {
   }
 };
 
-
-
 const user_data_dashboard = async (req, res, next) => {
   try {
     const { id } = req.body;
@@ -217,31 +213,12 @@ const user_data_dashboard = async (req, res, next) => {
     if (!user) {
       return res.status(404).json({ status: "User does not exist!!" });
     }
-
-    res.status(200).json({ status: "ok", walletdata: user });
+    res.status(200).json({ status: "ok", userdata: user });
   } catch (error) {
     console.log(error);
     return res.status(400).json({ error: "Internal Server Error" });
   }
 };
-const user_dashboard = async (req, res, next) => {
-  const { token } = req.body;
-  if(!token) {
-    return res.status(400).json({error: "Token is needed to get all user data."});
-  }
-  try {
-    const user = jwt.verify(token, JWT_SECRET);
-    const userid = user.id;
-    bankUsers.findOne({ _id: userid}).then((data) => {
-      res.send({ status: "ok", myuserdata: data});
-    }).catch((error) => {
-      res.send({ status: "error", data: error});
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(400).json({ error: "Internal Server Error" });
-  }
-}
 
 const verify_otp = async (req, res, next) => {
   try {
