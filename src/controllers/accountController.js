@@ -15,16 +15,16 @@ const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET); // Include clientSecret
 
 const register = async (req, res, next) => {
-    const {firstName, lastName, email, password} = req.body;
+    const {firstName, lastName, email, password, is_admin } = req.body;
     console.log('Reached registration route handler');
     console.log(password)
     console.log(firstName)
   try {
     
-//     const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-// if (!emailRegex.test(email)) {
-//   return res.status(400).json({error: "Invalid Email!"});
-// }
+    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+   if (!emailRegex.test(email)) {
+  return res.status(400).json({error: "Invalid Email!"});
+}
       const oldUser = await busTripUsers.findOne({ email });
       if(oldUser){
         return res.status(400).json({error: "Email is already being used."});
@@ -37,8 +37,9 @@ const register = async (req, res, next) => {
         length: 4,
         charset: 'numeric'
       });
-      console.log('Password:', password);
-      console.log('Encrypted Password:', encryptedPassword);
+      
+    const isAdminUser = is_admin === true;
+
       const expirationTime = Date.now() + 5 * 60 * 1000;
       const message = `Hello ${firstName},\n\nYour OTP for verification is: ${otp}`;
       const transporter = nodemailer.createTransport({
@@ -70,7 +71,7 @@ const register = async (req, res, next) => {
         } else {
           console.log('Email sent: ' + info.response);
           const transactionPin = 1111;
-        const details =  {firstName, lastName, email, password: encryptedPassword, otp, expirationTime, otpVerified: false, userImage: '', };
+        const details =  {firstName, lastName, email, password: encryptedPassword, otp, expirationTime, otpVerified: false, userImage: '', is_admin: isAdminUser, };
         const createUser = await createNewUser(details);
 
           return res.json({ status: "ok", message: 'Registration Successful. Check email for OTP', userEmail: email });
