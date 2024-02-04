@@ -35,7 +35,18 @@ const register = async (req, res, next) => {
     const isAdminUser = is_admin === true;
 
       const expirationTime = Date.now() + 5 * 60 * 1000;
-      const message = `Hello ${firstName},\n\nYour OTP for verification is: ${otp}`;
+      const message = `
+      <div style="font-family: Arial, sans-serif; color: #333; background-color: #f9f9f9; padding: 20px; border-radius: 5px;">
+        <h2 style="color: #007bff;">Welcome to AfriMove! </h2>
+        <p>Dear ${firstName},</p>
+        <p>Complete your registration by using the otp code below:</p>
+        <p style="background-color: #007bff; color: #fff; padding: 10px; border-radius: 5px;">${otp}</p>
+        <p>If you have not requested this email, please ignore it.</p>
+        <p>This code expires in 5 minutes. You must request a new code after that time.</p>
+        <p>Thank you,</p>
+        <p>AfriMove Team</p>
+      </div>
+    `;
       const transporter = nodemailer.createTransport({
         service: process.env.SMPT_SERVICE,
         auth: {
@@ -50,8 +61,8 @@ const register = async (req, res, next) => {
       const mailOptions = {
         from: process.env.APP_EMAIL,
         to: email,
-        subject: 'BusTrips OTP Code',
-        text: message,
+        subject: 'AfriMove OTP Code',
+        html: message,
       };
       
       transporter.sendMail(mailOptions, async function(error, info){
@@ -200,20 +211,6 @@ const delete_account = async (req, res, next) => {
   }
 };
 
-const user_data_dashboard = async (req, res, next) => {
-  try {
-    const  id  = req.user._id;
-    const user = await busTripUsers.findOne({ _id: id });
-    if (!user) {
-      return res.status(404).json({ status: "User does not exist!!" });
-    }
-    res.status(200).json({ status: "ok", userdata: user });
-  } catch (error) {
-    console.log(error);
-    return res.status(400).json({ error: "Internal Server Error" });
-  }
-};
-
 const verify_otp = async (req, res, next) => {
   try {
     const { email, otp } = req.body;
@@ -255,7 +252,19 @@ const generate_otp = async (req, res, next) => {
       length: 4,
       charset: 'numeric'
     });
-    const message = `Hello ${myuser.firstName} ${myuser.lastName},\n\nYour new OTP code is: ${otp}`;
+    const firstName = myuser.firstName;
+    const message = `
+      <div style="font-family: Arial, sans-serif; color: #333; background-color: #f9f9f9; padding: 20px; border-radius: 5px;">
+        <h2 style="color: #007bff;"> New OTP Code! </h2>
+        <p>Dear ${firstName},</p>
+        <p>Here is your new otp code below:</p>
+        <p style="background-color: #007bff; color: #fff; padding: 10px; border-radius: 5px;">${otp}</p>
+        <p>If you have not requested this email, please ignore it.</p>
+        <p>This code expires in 5 minutes. You must request a new code after that time.</p>
+        <p>Thank you,</p>
+        <p>AfriMove Team</p>
+      </div>
+    `;
     const transporter = nodemailer.createTransport({
       service: process.env.SMPT_SERVICE,
       auth: {
@@ -267,8 +276,8 @@ const generate_otp = async (req, res, next) => {
     const mailOptions = {
       from: process.env.APP_EMAIL,
       to: email,
-      subject: 'BusTrips New OTP Code',
-      text: message,
+      subject: 'AfriMove New OTP Code',
+      html: message,
     };
     
     transporter.sendMail(mailOptions, async function(error, info){
@@ -289,49 +298,65 @@ const generate_otp = async (req, res, next) => {
 }
 
 const forgot_pass = async (req, res) => {
-  const {email} = req.body;
-     try {
-      const oldUser = await busTripUsers.findOne({ email });
-      if(!oldUser){
-        return res.status(400).json({ error: "User does not exist!!"});
-      }
-      const Useremail = oldUser.email;
-      const secret = JWT_SECRET + oldUser.password;
-      const token = jwt.sign({ email: oldUser.email, id: oldUser._id },secret,{
-        expiresIn: "5m",
-      });
-      const link = `https://wallet-wb.vercel.app/reset-password/${oldUser._id}/${token}`;
-      const message = `Reset your Passoword using the following link :- \n\n ${link} \n\nif you have not requested this email then, please ignore it. \n\n This link expires in 5 minutes. You must request a new link if that time elapses.`;
-   
-      const transporter = nodemailer.createTransport({
-        service: process.env.SMPT_SERVICE,
-        auth: {
-          user: process.env.SMPT_MAIL,
-          pass: process.env.SMPT_PASSWORD,
-        },
-      });
-      
-      const mailOptions = {
-        from: process.env.APP_EMAIL,
-        to: Useremail,
-        subject: 'BusTrips Password Reset',
-        text: message,
-      };
-      
-      transporter.sendMail(mailOptions, function(error, info){
-        if (error) {
-          console.log(error);
-          return res.status(400).json({ error: "error", message: "There is an issue sending password reset link"});
+  const { email } = req.body;
+  try {
+    const oldUser = await busTripUsers.findOne({ email });
+    if (!oldUser) {
+      return res.status(400).json({ error: "User does not exist!!" });
+    }
+    const Useremail = oldUser.email;
+    const secret = JWT_SECRET + oldUser.password;
+    const token = jwt.sign({ email: oldUser.email, id: oldUser._id }, secret, {
+      expiresIn: "5m",
+    });
+    const firstName = oldUser.firstName;
+    const link = `https://afrimove.vercel.app/reset-password/${oldUser._id}/${token}`;
+    const message = `
+      <div style="font-family: Arial, sans-serif; color: #333; background-color: #f9f9f9; padding: 20px; border-radius: 5px;">
+        <h2 style="color: #007bff;">AfriMove Password Reset</h2>
+        <p>Dear ${firstName},</p>
+        <p>Please reset your password by clicking this button:</p>
+        <p style="background-color: #007bff; color: #fff; padding: 10px; border-radius: 5px;"><a href="${link}" style="color: #fff; text-decoration: none;">Reset Password</a></p>
+        <p>If you have not requested this email, please ignore it.</p>
+        <p>This link expires in 5 minutes. You must request a new link if that time elapses.</p>
+        <p>Thank you,</p>
+        <p>AfriMove Team</p>
+      </div>
+    `;
+
+    const transporter = nodemailer.createTransport({
+      service: process.env.SMPT_SERVICE,
+      auth: {
+        user: process.env.SMPT_MAIL,
+        pass: process.env.SMPT_PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.APP_EMAIL,
+      to: Useremail,
+      subject: 'AfriMove Password Reset',
+      html: message,
+    };
+
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        if (error.responseCode === 553) {
+          return res.status(400).json({ error: "Invalid Email!" });
         } else {
-          console.log('Email sent: ' + info.response);
-          return res.status(200).json({ status: "ok", message: "Password Reset Link Sent Check Your Email!"});
+          return res.json({ error: error, message: 'Failed to send OTP' });
         }
-      });
-     } catch (error) {
-      console.log(error)
-      return res.status(400).json({ error: "error", message: "Internal Serval Error"});
-     }
+      } else {
+        console.log('Email sent: ' + info.response);
+        return res.status(200).json({ status: "ok", message: "Password Reset Link Sent. Check Your Email!" });
+      }
+    });
+  } catch (error) {
+    console.log(error)
+    return res.status(400).json({ error: "error", message: "Internal Server Error" });
+  }
 }
+
 
 const pass_reset = async (req, res) => {
     const {password, id, token} = req.body;
@@ -393,7 +418,6 @@ module.exports = {
     forgot_pass,
     pass_reset,
     userImage,
-    user_data_dashboard,
     logout,
     delete_account
 } 
