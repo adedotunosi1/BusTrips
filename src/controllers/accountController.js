@@ -414,11 +414,6 @@ const register = async (req, res, next) => {
     </tr>
     </table>
     <![endif]-->
-    
-
-
-  
-  
     <!--[if gte mso 9]>
       <table cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;min-width: 320px;max-width: 600px;">
         <tr>
@@ -807,7 +802,15 @@ const forgot_pass = async (req, res) => {
       expiresIn: "5m",
     });
     const firstName = oldUser.firstName;
-    const link = `https://afrimove.vercel.app/reset-password/${oldUser._id}/${token}`;
+    const otp = randomstring.generate({
+      length: 4,
+      charset: 'numeric'
+    });
+    console.log(otp);
+    oldUser.otp = otp;
+    await oldUser.save();
+   // const link = `https://afrimove.vercel.app/reset-password/${oldUser._id}/${token}`;
+   const link = `https://afrimove.vercel.app/reset-password/`;
     const message = `
     <!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -1145,7 +1148,7 @@ const forgot_pass = async (req, res) => {
       <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:10px 50px;font-family:'Raleway',sans-serif;" align="left">
         
   <div style="font-size: 14px; line-height: 140%; text-align: center; word-wrap: break-word;">
-    <p style="line-height: 140%;">Reset your password using the link below:</p>
+    <p style="line-height: 140%;">Reset your password using the code and click the link below:</p>
   </div>
 
       </td>
@@ -1162,7 +1165,7 @@ const forgot_pass = async (req, res) => {
 <div align="center">
   <!--[if mso]><table border="0" cellspacing="0" cellpadding="0"><tr><td align="center" bgcolor="#da1212" style="padding:10px 20px;" valign="top"><![endif]-->
     <a href="${link}" target="_blank" class="v-button v-size-width" style="box-sizing: border-box;display: inline-block;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #FFFFFF; background-color: #da1212; border-radius: 4px;-webkit-border-radius: 4px; -moz-border-radius: 4px; width:30%; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;font-family: 'Open Sans',sans-serif; font-size: 14px;">
-      <span class="v-padding" style="display:block;padding:10px 20px;line-height:120%;"><span style="line-height: 16.8px;">Reset Password</span></span>
+      <span class="v-padding" style="display:block;padding:10px 20px;line-height:120%;"><span style="line-height: 16.8px;">${otp}</span></span>
     </a>
     <!--[if mso]></td></tr></table><![endif]-->
 </div>
@@ -1332,16 +1335,19 @@ const forgot_pass = async (req, res) => {
       html: message,
     };
 
-    transporter.sendMail(mailOptions, function (error, info) {
+    transporter.sendMail(mailOptions, async function (error, info) {
       if (error) {
         if (error.responseCode === 553) {
           return res.status(400).json({ error: "Invalid Email!" });
         } else {
-          return res.json({ error: error, message: 'Failed to send OTP' });
+          console.log('Email sent: ' + info.response);
+        oldUser.otp = otp;
+        await oldUser.save();
+        res.status(200).json({ message: 'Check email for password reset code' });
         }
       } else {
         console.log('Email sent: ' + info.response);
-        return res.status(200).json({ status: "ok", message: "Password Reset Link Sent. Check Your Email!" });
+        return res.status(200).json({ status: "ok", message: "Password Reset Sent. Check Your Email!" });
       }
     });
   } catch (error) {
@@ -1352,15 +1358,16 @@ const forgot_pass = async (req, res) => {
 
 
 const pass_reset = async (req, res) => {
-    const {password, id, token} = req.body;
+    const {password, code} = req.body;
   //  const token = req.params.token;
-    const oldUser = await busTripUsers.findOne({ _id: id }); 
+    const oldUser = await busTripUsers.findOne({ otp: code }); 
       if(!oldUser){
-      return res.json({ status: "User does not exist!!"});
+      return res.json({ status: "Invalid Code"});
       }
+      const id = oldUser._id;
       const secret = JWT_SECRET + oldUser.password;
       try {
-        const verify = jwt.verify(token, secret);
+        // const verify = jwt.verify(token, secret);
         const encryptedPassword = await bcrypt.hash(password, 10);
         await busTripUsers.updateOne({
           _id: id,

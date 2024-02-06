@@ -11,7 +11,7 @@ authRoute.delete('/delete-acc', requireUser, controller.AccountController.delete
 authRoute.post('/otp', controller.AccountController.verify_otp);
 authRoute.post('/generate_otp', requireUser, controller.AccountController.generate_otp);
 authRoute.post('/forgot_pass', controller.AccountController.forgot_pass);
-authRoute.post('/pass_reset/:id/:token', requireUser, controller.AccountController.pass_reset);
+authRoute.post('/pass_reset', controller.AccountController.pass_reset);
 module.exports = {
     authRoute,
 }
