@@ -1376,7 +1376,7 @@ const pass_reset = async (req, res) => {
             password: encryptedPassword,
           },
         });
-        res.json({ status: "Password Updated"});
+        res.json({ status: "ok", message: "Password Updated!"});
       } catch (error) {
         console.log(error);
         res.status(400).json({status: "Error: Your password could not be changed."});
