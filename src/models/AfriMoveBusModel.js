@@ -49,6 +49,10 @@ const AfriMoveBusSchema = new mongoose.Schema({
     },
     distance: {
         type: String,
+    },
+    price: {
+        type: Number, 
+        required: true 
     }
 
 },

@@ -113,21 +113,54 @@ const bus_image = async (req, res) => {
 }
 
 const bus_data = async (req, res) => {
-  const { busId } = req.body
+  const { busId } = req.body;
   try {
     if (!busId) {
       return res.status(404).json({ error: 'Bus Id needed' });
     }
-    const afriMoveBus = await allAfriMoveBus.find({busId});
+
+    const afriMoveBus = await allAfriMoveBus.findOne({ busId });
+
     if (!afriMoveBus) {
       return res.status(404).json({ error: 'Bus not found.' });
     }
-      res.json({ message: 'Your Bus Data', data: afriMoveBus });
+    
+    res.json({ message: 'Your Bus Data', data: afriMoveBus });
 
-   } catch (error) {
+  } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Internal Server Error", codeerror: error });
-   }
+    res.status(500).json({ message: "Internal Server Error", error: error });
+  }
+}
+
+
+const update_busprice = async (req, res) => {
+  try {
+      const {plateNumber, newPrice } = req.body// Assuming price is sent in the request body
+
+      // Find bus by ID
+      let bus = await allAfriMoveBus.findOne({ plateNumber });
+       console.log(bus)
+      if (!bus) {
+          return res.status(404).json({ message: 'Bus not found' });
+      }
+
+      // If the bus document doesn't have a price field, create one
+      if (!bus.price) {
+          bus.price = newPrice;
+      } else {
+          // If the price field already exists, update its value
+          bus.price = newPrice;
+      }
+
+      // Save the changes to the database
+      await bus.save();
+
+      return res.status(200).json({ message: 'Price updated successfully', bus });
+  } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Internal server error' });
+  }
 }
 
 
@@ -135,5 +168,6 @@ module.exports = {
     add_bus,
     get_bus,
     bus_image,
-    bus_data
+    bus_data,
+    update_busprice
 } 

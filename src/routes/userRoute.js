@@ -11,7 +11,7 @@ userRoute.post('/add-bus', requireUser, upload.single('image'), Controller.BusCo
 userRoute.get('/bus', requireUser, Controller.BusController.get_bus);
 userRoute.post('/bus-image', upload.single('image'), Controller.BusController.bus_image);
 userRoute.post('/bus-data', requireUser, Controller.BusController.bus_data);
-
+userRoute.post('/bus-price', requireUser, Controller.BusController.update_busprice);
 module.exports = {
     userRoute,
 }
