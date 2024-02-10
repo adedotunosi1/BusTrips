@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const busUsersSchema = new mongoose.Schema({
+const afriMoveUsersSchema = new mongoose.Schema({
   firstName: {
     type: String,
     required: [true, "Full Name is required"]
@@ -44,5 +44,5 @@ const busUsersSchema = new mongoose.Schema({
   }
 });
 
-const busTripUsers = mongoose.model('BusUsers', busUsersSchema);
-module.exports = busTripUsers;
+const AfriMoveUsers = mongoose.model('AfriMoveUsers', afriMoveUsersSchema);
+module.exports = AfriMoveUsers;

@@ -1,8 +1,8 @@
-const bankUsers = require("../models/busUsersModel");
+const busUsers = require("../models/AfriMoveUsersModel");
 
 exports.register = async (details) => {
     try {
-        const newUser = await bankUsers.create({...details});
+        const newUser = await busUsers.create({...details});
         if(!newUser)
         return {error: "Account Registration Failed"};
         return newUser;

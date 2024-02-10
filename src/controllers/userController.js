@@ -1,4 +1,4 @@
-const busTripUsers = require("../models/busUsersModel");
+const busTripUsers = require("../models/AfriMoveUsersModel");
 const myImages = require('../models/imageModel');
 const { cloudinary } = require('../utils/cloudinary');
 const fs = require('fs');

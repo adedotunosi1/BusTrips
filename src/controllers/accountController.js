@@ -1,4 +1,4 @@
-const busTripUsers = require('../models/busUsersModel');
+const busTripUsers = require('../models/AfriMoveUsersModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = "duibfsfuyws8722efyfvuy33762";
@@ -1362,7 +1362,7 @@ const pass_reset = async (req, res) => {
   //  const token = req.params.token;
     const oldUser = await busTripUsers.findOne({ otp: code }); 
       if(!oldUser){
-      return res.json({ status: "Invalid Code"});
+        return res.status(400).json({error: "Invalid Code!"});
       }
       const id = oldUser._id;
       const secret = JWT_SECRET + oldUser.password;

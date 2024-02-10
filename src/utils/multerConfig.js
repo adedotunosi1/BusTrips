@@ -3,10 +3,10 @@ const multer = require('multer');
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, '../services/userimages');
+      cb(null, '');
     },
     filename: function (req, file, cb) {
-      cb(null, 'profileImage-' + Date.now())
+      cb(null, 'busImage-' + Date.now())
     },
   });
   
