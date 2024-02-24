@@ -34,7 +34,12 @@ const get_userbookings = async (req, res) => {
     }
 }
 
+const delete_booking = async (req, res) => {
+
+}
+
 module.exports = {
     get_allbookings,
-    get_userbookings
+    get_userbookings,
+    delete_booking
 }
