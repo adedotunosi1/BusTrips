@@ -10,6 +10,7 @@ const create_trip = async (req, res) => {
     const userId = req.user._id;
     console.log(userId);
     const email = req.user.email;
+    console.log(email);
 
     try {
         const bus = await AfriMoveBus.findOne({ busId });
