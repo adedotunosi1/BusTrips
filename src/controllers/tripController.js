@@ -6,8 +6,9 @@ const { initiatePayment } = require('./paystackController');
 const randomstring = require('randomstring');
 
 const create_trip = async (req, res) => {
-    const { busId, tripDate, paymentOption, seatNumber } = req.body;
+    const { busId, tripDate, paymentOption, seatNumber, people } = req.body;
     const userId = req.user._id;
+    console.log(userId);
     const email = req.user.email;
 
     try {
@@ -15,8 +16,9 @@ const create_trip = async (req, res) => {
         if (!bus) {
             return res.status(404).json({ error: 'Bus Not Found' });
         }
+        const basePrice = bus.price;
+        const amount = basePrice * people;
 
-        const amount = bus.price;
         const destination = bus.destination;
         const tripNumber = randomstring.generate({
             length: 6,
@@ -40,6 +42,7 @@ const create_trip = async (req, res) => {
                 paymentOption,
                 tripNumber,
                 seatNumber,
+                people
             });
 
             await newTrip.save();
@@ -66,10 +69,13 @@ const create_trip = async (req, res) => {
                 paymentOption,
                 tripNumber,
                 seatNumber,
-                status
+                status,
+                people
             });
 
             await newTrip.save();
+
+            // creating a newbooking
 
             const newBooking = new AfriMoveBooking({
                 tripId: newTrip._id,
