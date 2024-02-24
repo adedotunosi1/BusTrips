@@ -42,6 +42,9 @@ const AfriTripSchema = new mongoose.Schema({
     },
     seatNumber: {
         type: Number
+    },
+    people: {
+        type: Number
     }
 },
 { timestamps: true }
